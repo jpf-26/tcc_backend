@@ -24,6 +24,8 @@ custom_urls = [
     path('trocas_detalhadas/', trocas_detalhadas, name='trocas_detalhadas'),
     path('feriados/', listar_feriados, name='feriados'),
     path('notificacoes/marcar_todas_lidas/', marcar_todas_como_lidas, name='marcar_todas_lidas'),
+    path('cadastrar_usuario/', cadastrar_usuario, name='cadastrar_usuario'),
+    path('deletar_usuario/<int:id>/', deletar_usuario, name='deletar_usuario'),
 
 ]
 urlpatterns = router.urls + custom_urls

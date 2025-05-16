@@ -145,6 +145,8 @@ def apagar_guardas(request):
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
 
 from datetime import datetime
+from datetime import date
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -162,8 +164,8 @@ def solicitar_troca_guarda(request):
         data_substituto = datetime.strptime(data_substituto, "%Y-%m-%d").date()
 
         
-        if data_substituto < data_solicitante:
-            return Response({'erro': 'A data da guarda do substituto não pode ser anterior à sua.'}, status=400)
+        if data_substituto < date.today():
+           return Response({'erro': 'A data da guarda do substituto não pode ser anterior à data de hoje.'}, status=400)
 
         inicio_solic = datetime.combine(data_solicitante, time.min)
         fim_solic = datetime.combine(data_solicitante, time.max)
@@ -474,7 +476,7 @@ def trocas_detalhadas(request):
 def listar_feriados(request):
     try:
         ano = datetime.now().year
-        feriados = Brazil(years=ano)
+        feriados = Brazil(years=ano, language="pt_BR", subdiv='SP')
         feriados_json = [
             {'data': str(data), 'nome': nome}
             for data, nome in feriados.items()
@@ -495,3 +497,26 @@ def marcar_todas_como_lidas(request):
     except Exception as e:
         return Response({'erro': str(e)}, status=500)
 
+
+from rest_framework.decorators import parser_classes
+from rest_framework.parsers import MultiPartParser, FormParser
+
+# Endpoint só para cadastro (POST)
+@api_view(['POST'])
+@parser_classes([MultiPartParser, FormParser])
+def cadastrar_usuario(request):
+    serializer = UsuarioCustomizadoSerializer(data=request.data, context={'request': request})
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+def deletar_usuario(request, id):
+    try:
+        usuario = UsuarioCustomizado.objects.get(pk=id)
+        usuario.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    except UsuarioCustomizado.DoesNotExist:
+        return Response({'erro': 'Usuário não encontrado'}, status=status.HTTP_404_NOT_FOUND)

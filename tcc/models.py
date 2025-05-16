@@ -27,7 +27,7 @@ class UsuarioCustomizado(AbstractBaseUser, PermissionsMixin):
     escolaridade = models.CharField(max_length=50, null=True, blank=True)
     trabalho = models.CharField(max_length=50, null=True, blank=True)
     email = models.EmailField("endereço de email", unique=True)
-    senha = models.CharField(max_length=50)
+    senha = models.CharField(max_length=50, blank=False)
     rua = models.CharField(max_length=100)
     bairro = models.CharField(max_length=100)
     cidade = models.CharField(max_length=100)

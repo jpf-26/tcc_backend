@@ -5,6 +5,46 @@ class UsuarioCustomizadoSerializer(serializers.ModelSerializer):
     class Meta:
         model = UsuarioCustomizado
         fields = '__all__'
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'foto': {'required': False},
+        }
+
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        request = self.context.get("request")
+        if request and request.method == "POST":
+            self.fields['password'].required = True
+            self.fields['foto'].required = True  # Apenas no POST
+        else:
+            self.fields['password'].required = False
+            self.fields['foto'].required = False
+
+    def create(self, validated_data):
+        # Remove campos ManyToMany que causam erro
+        validated_data.pop("groups", None)
+        validated_data.pop("user_permissions", None)
+
+        senha = validated_data.pop("password")
+        instance = UsuarioCustomizado.objects.create_user(**validated_data)
+        instance.set_password(senha)
+        instance.save()
+        return instance
+
+    def update(self, instance, validated_data):
+        senha = validated_data.pop("password", None)
+        validated_data.pop("groups", None)
+        validated_data.pop("user_permissions", None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if senha:
+            instance.set_password(senha)
+        instance.save()
+        return instance
+
+
 
 class GuardaSerializer(serializers.ModelSerializer):
     class Meta:
