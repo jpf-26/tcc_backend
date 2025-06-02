@@ -9,12 +9,16 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
 from datetime import datetime, time
+from rest_framework import viewsets, filters
+
 
 
 
 class UsuarioCustomizadoView(ModelViewSet):
     queryset = UsuarioCustomizado.objects.all()
     serializer_class = UsuarioCustomizadoSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome_guerra']
 
 class GuardaView(ModelViewSet):
     queryset = Guarda.objects.all()
@@ -23,6 +27,8 @@ class GuardaView(ModelViewSet):
 class UsuarioGuardaView(ModelViewSet):
     queryset = UsuarioGuarda.objects.all()
     serializer_class = UsuarioGuardaSerializer
+    
+
 
 @api_view(['POST'])
 def upload_foto(request):
@@ -103,7 +109,7 @@ def sortear_guardas(request):
         for i in range((data_fim - data_inicio).days + 1):
             dia = data_inicio + timedelta(days=i)
             is_feriado = dia in feriados
-            is_fds = dia.weekday() >= 5  # 5 = sábado, 6 = domingo
+            is_fds = dia.weekday() >= 5  
             tipo_especial = is_feriado or is_fds
 
             guarda = Guarda.objects.create(data_guarda=dia, observacoes='', id_escala=escala)
@@ -501,7 +507,7 @@ def marcar_todas_como_lidas(request):
 from rest_framework.decorators import parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
 
-# Endpoint só para cadastro (POST)
+
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])
 def cadastrar_usuario(request):
