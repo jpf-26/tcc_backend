@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from datetime import datetime, timedelta
 from django.utils import timezone
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from datetime import datetime, time
 from rest_framework import viewsets, filters
 
@@ -15,16 +15,19 @@ from rest_framework import viewsets, filters
 
 
 class UsuarioCustomizadoView(ModelViewSet):
+    permission_classes = [AllowAny]
     queryset = UsuarioCustomizado.objects.all()
     serializer_class = UsuarioCustomizadoSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['nome_guerra']
 
 class GuardaView(ModelViewSet):
+    permission_classes = [AllowAny]
     queryset = Guarda.objects.all()
     serializer_class = GuardaSerializer
 
 class UsuarioGuardaView(ModelViewSet):
+    permission_classes = [AllowAny]
     queryset = UsuarioGuarda.objects.all()
     serializer_class = UsuarioGuardaSerializer
     
@@ -40,22 +43,27 @@ def upload_foto(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
 
 class TrocaView(ModelViewSet):
+    permission_classes = [AllowAny]
     queryset = Troca.objects.all()
     serializer_class = TrocaSerializer
 
 class TrocaAtiradorView(ModelViewSet):
+    permission_classes = [AllowAny]
     queryset = TrocaAtirador.objects.all()
     serializer_class = TrocaAtiradorSerializer
 
 class TrocaGuardaView(ModelViewSet):
+    permission_classes = [AllowAny]
     queryset = TrocaGuarda.objects.all()
     serializer_class = TrocaGuardaSerializer
 
 class NotificacaoView(ModelViewSet):
+    permission_classes = [AllowAny]
     queryset = Notificacao.objects.all()
     serializer_class = NotificacaoSerializer
 
 class EscalaView(ModelViewSet):
+    permission_classes = [AllowAny]
     queryset = Escala.objects.all()
     serializer_class = EscalaSerializer
 
@@ -67,6 +75,7 @@ from datetime import timedelta
 from rest_framework import status
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def sortear_guardas(request):
     try:
         ordem = request.data.get('ordem', 'crescente')
@@ -139,6 +148,7 @@ def sortear_guardas(request):
 
 
 @api_view(['DELETE'])
+@permission_classes([AllowAny])
 def apagar_guardas(request):
     try:
         UsuarioGuarda.objects.all().delete()
@@ -155,7 +165,7 @@ from datetime import date
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def solicitar_troca_guarda(request):
     try:
         substituto_nome = request.data.get('substituto')
@@ -240,7 +250,7 @@ def solicitar_troca_guarda(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def aceitar_troca(request):
     try:
         id_troca = request.data.get('id_troca')
@@ -304,7 +314,7 @@ def aceitar_troca(request):
     
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def rejeitar_troca_guarda(request):
     try:
         id_troca = request.data.get('id_troca')
@@ -353,7 +363,7 @@ def rejeitar_troca_guarda(request):
 
 
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def executar_troca_guarda(request):
     try:
         id_troca = request.data.get('id_troca')
@@ -413,8 +423,11 @@ def executar_troca_guarda(request):
 
 
 
+
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def guardas_agrupadas(request):
+    
     guardas = Guarda.objects.all().order_by('data_guarda')
     resultado = []
 
@@ -438,7 +451,7 @@ def guardas_agrupadas(request):
     return Response(resultado)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def trocas_detalhadas(request):
     try:
         trocas = Troca.objects.filter(status='Pendente')
@@ -479,6 +492,7 @@ def trocas_detalhadas(request):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def listar_feriados(request):
     try:
         ano = datetime.now().year
@@ -494,7 +508,7 @@ def listar_feriados(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def marcar_todas_como_lidas(request):
     try:
         user = request.user
@@ -509,6 +523,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 @parser_classes([MultiPartParser, FormParser])
 def cadastrar_usuario(request):
     serializer = UsuarioCustomizadoSerializer(data=request.data, context={'request': request})
@@ -519,6 +534,7 @@ def cadastrar_usuario(request):
 
 
 @api_view(['DELETE'])
+@permission_classes([AllowAny])
 def deletar_usuario(request, id):
     try:
         usuario = UsuarioCustomizado.objects.get(pk=id)
